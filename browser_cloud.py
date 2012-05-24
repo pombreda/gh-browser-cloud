@@ -11,6 +11,7 @@ re_uri = re.compile(r'\S*[\/\.=]\S*')
 
 stopwords = set(stopwords.words('english'))
 texts = {'ie': [], 'firefox': [], 'chrome': [], 'opera': [], 'safari': []}
+counts = {'ie': 0, 'firefox': 0, 'chrome': 0, 'opera': 0, 'safari': 0}
 freqdists = {}
 
 browsers = {
@@ -43,10 +44,15 @@ for record in reader:
             # replace occurences of browser itself
             #texts[b] += [w for w in words if not re.search(browsers[b], w)]
             texts[b] += words
+            counts[b] += 1
 fcsv.close()
+
+print counts
 
 for b in texts:
     fdist = FreqDist(w for w in texts[b]).items()
     freqdists[b] = [(w, c) for w, c in fdist if c >= 2][:500]
 
-print 'var browsers = %s;' % json.dumps(freqdists)
+fjs = open('data.js', 'w')
+fjs.write('var browsers = %s;' % json.dumps(freqdists))
+fjs.close()
